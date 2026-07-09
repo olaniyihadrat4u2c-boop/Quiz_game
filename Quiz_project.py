@@ -232,3 +232,14 @@ def access_engine():
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+def question_loader(category, num_questions=None):
+    #this recievies the category and returns the right questions for that categorie
+    if category in QUESTIONS:
+        #randomize order, no repeats
+        questions = QUESTIONS[category][:]
+        random.shuffle(questions)
+        if num_questions and num_questions < len(questions):
+            return questions[:num_questions]
+        return questions
+    return []
+
