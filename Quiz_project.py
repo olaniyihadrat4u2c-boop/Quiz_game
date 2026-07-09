@@ -192,3 +192,43 @@ QUESTIONS = {
 
 CATEGORIES = list(QUESTIONS.keys())
 
+def access_engine():
+    """Welcomes the user and lets them pick a quiz category and number of questions."""
+    print("=" * 30)
+    print("Welcome to QuizGame!")
+    print("=" * 30)
+    print("\nRules:")
+    print("- Answer with A, B, C, or D")
+    print("- You have 3 strikes (wrong answers)")
+    print("- 3 strikes ends the game early")
+    print("- Choose a category and number of questions below\n")
+    
+    while True:
+        print("Available Categories:")
+        for i, cat in enumerate(CATEGORIES, 1):
+            print(f"{i}. {cat}")
+        
+        try:
+            choice = int(input("\nEnter the number of your chosen category: "))
+            if 1 <= choice <= len(CATEGORIES):
+                selected = CATEGORIES[choice - 1]
+                print(f"\nYou chose: {selected}")
+                
+                # Ask for number of questions
+                max_q = len(QUESTIONS[selected])
+                while True:
+                    try:
+                        num_questions = int(input(f"How many questions do you want to answer? (1-{max_q}): "))
+                        if 1 <= num_questions <= max_q:
+                            print(f"Get ready! The quiz will begin now with {num_questions} questions.")
+                            print("You have 3 strikes. 3 wrong answers and the game ends early.")
+                            return selected, num_questions
+                        else:
+                            print(f"Invalid number. Please enter between 1 and {max_q}.")
+                    except ValueError:
+                        print("Invalid input. Please enter a number.")
+            else:
+                print(f"Invalid choice. Please enter a number between 1 and {len(CATEGORIES)}")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
