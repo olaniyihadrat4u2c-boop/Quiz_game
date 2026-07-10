@@ -317,3 +317,23 @@ def result_engine(score, total):
         msg = "Keep practicing, you'll get there!"
     
     print(f"Grade: {grade} — {msg}")
+
+def main():
+    result = access_engine()
+    if isinstance(result, tuple):
+        category, num_questions = result
+    else:
+        category = result
+        num_questions = None
+    
+    questions = question_loader(category, num_questions)
+    
+    if not questions:
+        print("No questions found for this category. Exiting.")
+        return
+    
+    score, total = quiz_engine(questions)
+    result_engine(score, total)
+
+if __name__ == "__main__":
+    main()
