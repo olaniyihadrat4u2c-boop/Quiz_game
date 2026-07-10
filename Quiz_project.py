@@ -286,3 +286,34 @@ def quiz_engine(questions):
             break
     
     return score, answered if answered > 0 else total
+
+def result_engine(score, total):
+    """Displays the final result."""
+    if total == 0:
+        print("No questions were answered.")
+        return
+    
+    percentage = (score / total) * 100
+    print("\n" + "=" * 30)
+    print("QUIZ COMPLETE!")
+    print("=" * 30)
+    print(f"Your Score: {score} out of {total}")
+    print(f"Percentage: {int(percentage)}%")
+    
+    if percentage >= 90:
+        grade = "A"
+        msg = "Outstanding! Perfect knowledge!"
+    elif percentage >= 75:
+        grade = "B"
+        msg = "Great job! Really solid!"
+    elif percentage >= 55:
+        grade = "C"
+        msg = "Not bad! A bit more study will help."
+    elif percentage >= 40:
+        grade = "D"
+        msg = "You passed, but there's room to improve."
+    else:
+        grade = "F"
+        msg = "Keep practicing, you'll get there!"
+    
+    print(f"Grade: {grade} — {msg}")
