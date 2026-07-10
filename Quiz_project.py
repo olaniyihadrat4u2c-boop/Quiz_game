@@ -243,3 +243,46 @@ def question_loader(category, num_questions=None):
         return questions
     return []
 
+def quiz_engine(questions):
+    """Runs the quiz loop. Returns score and total questions attempted."""
+    score = 0
+    strikes = 3
+    total = len(questions)
+    answered = 0
+    
+    print("-" * 30)
+    
+    for i, q in enumerate(questions, 1):
+        if strikes <= 0:
+            break
+        
+        print(f"\nQuestion {i} of {total}:")
+        print(q["question"])
+        for opt, ans in q["options"].items():
+            print(f"{opt}) {ans}")
+        
+        while True:
+            user_input = input("\nYour answer (A/B/C/D): ").strip().upper()
+            if user_input in ['A', 'B', 'C', 'D']:
+                answered += 1
+                if user_input == q["answer"]:
+                    print("Correct! ✓")
+                    score += 1
+                else:
+                    print(f"Wrong! The correct answer was {q['answer']}) {q['options'][q['answer']]} ✗")
+                    strikes -= 1
+                print(f"Strikes remaining: {strikes}")
+                break
+            else:
+                print("Invalid input. Only A, B, C or D are accepted.")
+                print("This counts as a wrong answer!")
+                strikes -= 1
+                print(f"Strikes remaining: {strikes}")
+                answered += 1  # Counts as attempted
+                break
+        
+        if strikes <= 0:
+            print("\nYou've used all 3 strikes. Game over!")
+            break
+    
+    return score, answered if answered > 0 else total
