@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizGame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10142a;
+    --bg-glow: #171d3d;
+    --surface: #1b2145;
+    --surface-2: #232a54;
+    --line: #323a6b;
+    --text: #eef1fb;
+    --text-dim: #9aa1c9;
+    --amber: #f2b134;
+    --amber-dim: #a67c26;
+    --green: #3ddc97;
+    --red: #ff6363;
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  body{
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 15% 10%, var(--bg-glow) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, #1a2452 0%, transparent 50%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .console{
+    width: 100%;
+    max-width: 560px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.6);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .console-top{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+
+  .brand{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .brand .dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--amber);
+    box-shadow: 0 0 10px var(--amber);
+  }
+
+  .lives{
+    display:flex;
+    gap: 6px;
+  }
+  .life{
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--amber-dim);
+    background: transparent;
+    position: relative;
+    transition: all .35s ease;
+  }
+  .life.filled{
+    background: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 8px rgba(242,177,52,.6);
+  }
+  .life.lost{
+    border-color: var(--red);
+    background: transparent;
+  }
+  .life.lost::before, .life.lost::after{
+    content:'';
+    position:absolute;
+    top: 50%; left: 50%;
+    width: 14px; height: 2px;
+    background: var(--red);
+  }
+  .life.lost::before{ transform: translate(-50%,-50%) rotate(45deg); }
+  .life.lost::after{ transform: translate(-50%,-50%) rotate(-45deg); }
+
+  .screen{ padding: 32px 28px 28px; min-height: 420px; display:flex; flex-direction:column; }
+  .screen[hidden]{ display:none; }
+
+  /* ---------- Welcome ---------- */
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+  h1.title{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .lede{
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+  .rules{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .rules li{
+    font-size: 13.5px;
+    color: var(--text);
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+  }
+  .rules li .tick{
+    font-family: var(--font-mono);
+    color: var(--amber);
+    font-weight: 700;
+    flex-shrink:0;
+  }
+
+  .btn{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14.5px;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    width: 100%;
+  }
+  .btn:focus-visible{ outline: 2px solid var(--amber); outline-offset: 3px; }
+  .btn-primary{
+    background: var(--amber);
+    color: #1b1400;
+    box-shadow: 0 10px 24px -10px rgba(242,177,52,.55);
+  }
+  .btn-primary:hover{ transform: translateY(-1px); }
+  .btn-ghost{
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    margin-top: 10px;
+  }
+  .btn-ghost:hover{ color: var(--text); border-color: var(--amber-dim); }
+
+  .spacer{ flex: 1; }
+
+  /* ---------- Category select ---------- */
+  .cat-grid{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .cat-card{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor:pointer;
+    text-align:left;
+    transition: border-color .15s ease, transform .15s ease;
+    color: var(--text);
+  }
+  .cat-card:hover{ border-color: var(--amber-dim); transform: translateY(-1px); }
+  .cat-card.selected{ border-color: var(--amber); background: #262c58; }
+  .cat-icon{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--bg);
+    background: var(--amber);
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700;
+    flex-shrink:0;
+  }
+  .cat-name{ font-family: var(--font-display); font-weight: 700; font-size: 14.5px; }
+  .cat-count{ font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+
+  .qty-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+  }
+  .qty-label{ font-size: 13.5px; color: var(--text-dim); }
+  .stepper{ display:flex; align-items:center; gap: 14px; }
+  .stepper button{
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    cursor:pointer;
+  }
+  .stepper button:hover{ border-color: var(--amber); color: var(--amber); }
+  .stepper span{ font-family: var(--font-mono); font-weight: 700; font-size: 16px; min-width: 20px; text-align:center; }
+
+  /* ---------- Quiz ---------- */
+  .quiz-meta{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-bottom: 14px;
+  }
+  .qcount{ font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); letter-spacing: .04em; }
+  .progress-track{
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow:hidden;
+    margin-bottom: 24px;
+  }
+  .progress-fill{
+    height: 100%;
+    background: var(--amber);
+    border-radius: 2px;
+    transition: width .3s ease;
+  }
+  .question-text{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.4;
+    margin-bottom: 22px;
+  }
+  .options{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .option{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 15px;
+    cursor:pointer;
+    text-align:left;
+    color: var(--text);
+    font-size: 14px;
+    transition: all .15s ease;
+  }
+  .option:hover:not(:disabled){ border-color: var(--amber-dim); }
+  .option .key{
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--bg);
+    background: var(--text-dim);
+    width: 24px; height: 24px;
+    border-radius: 7px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .option.correct{ border-color: var(--green); background: rgba(61,220,151,0.1); }
+  .option.correct .key{ background: var(--green); color: #06251a; }
+  .option.wrong{ border-color: var(--red); background: rgba(255,99,99,0.1); }
+  .option.wrong .key{ background: var(--red); color: #2a0505; }
+  .option:disabled{ cursor: default; }
+
+  .feedback{
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    min-height: 18px;
+    color: var(--text-dim);
+  }
+  .feedback.correct{ color: var(--green); }
+  .feedback.wrong{ color: var(--red); }
+
+  /* ---------- Result ---------- */
+  .grade-badge{
+    align-self:center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 44px;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    margin: 6px auto 18px;
+    border: 3px solid var(--amber);
+    color: var(--amber);
+  }
+  .score-line{
+    text-align:center;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .score-big{
+    text-align:center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .result-msg{
+    text-align:center;
+    color: var(--text-dim);
+    font-size: 13.5px;
+    margin-bottom: 26px;
+  }
+
+  .footnote{
+    text-align:center;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    opacity: .6;
+    margin-top: 18px;
+  }
+</style>
+</head>
+<body>
+
+<div class="console">
+  <div class="console-top">
+    <div class="brand"><span class="dot"></span>QUIZGAME</div>
+    <div class="lives" id="livesTracker"></div>
+  </div>
+
+  <!-- Screen 1: Welcome -->
+  <section class="screen" id="screen-welcome">
+    <div class="eyebrow">Round setup</div>
+    <h1 class="title">Three strikes. One shot at bragging rights.</h1>
+    <p class="lede">Pick a category, choose how many questions you want, and answer with A, B, C or D. Three wrong answers ends the round early — so make every guess count.</p>
+    <ul class="rules">
+      <li><span class="tick">01</span> Answer using the A / B / C / D options</li>
+      <li><span class="tick">02</span> You get 3 strikes — 3 wrong answers ends the game</li>
+      <li><span class="tick">03</span> Questions are shuffled every round</li>
+    </ul>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" onclick="goToScreen('category')">Choose a category</button>
+  </section>
+
+  <!-- Screen 2: Category + question count -->
+  <section class="screen" id="screen-category" hidden>
+    <div class="eyebrow">Step 1 of 2</div>
+    <h1 class="title" style="font-size:22px;">Pick your category</h1>
+    <div class="cat-grid" id="catGrid"></div>
+
+    <div class="qty-row">
+      <div>
+        <div class="qty-label">Number of questions</div>
+      </div>
+      <div class="stepper">
+        <button type="button" onclick="adjustQty(-1)">&minus;</button>
+        <span id="qtyValue">5</span>
+        <button type="button" onclick="adjustQty(1)">+</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>Start quiz</button>
+    <button class="btn btn-ghost" onclick="goToScreen('welcome')">Back</button>
+  </section>
+
+  <!-- Screen 3: Quiz -->
+  <section class="screen" id="screen-quiz" hidden>
+    <div class="quiz-meta">
+      <span class="qcount" id="qCounter">QUESTION 1 / 5</span>
+      <span class="qcount" id="catLabel">GENERAL KNOWLEDGE</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <p class="question-text" id="questionText">Question text goes here</p>
+    <div class="options" id="optionsList"></div>
+    <p class="feedback" id="feedbackText"></p>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none;">Next question</button>
+  </section>
+
+  <!-- Screen 4: Result -->
+  <section class="screen" id="screen-result" hidden>
+    <div class="eyebrow" style="text-align:center;">Quiz complete</div>
+    <div class="grade-badge" id="gradeBadge">A</div>
+    <p class="score-big" id="scoreBig">10 / 10</p>
+    <p class="score-line" id="percentLine">100% correct</p>
+    <p class="result-msg" id="resultMsg">Outstanding! Perfect knowledge!</p>
+    <button class="btn btn-primary" onclick="resetGame()">Play again</button>
+    <p class="footnote">Frontend preview — logic will connect to the Flask backend next</p>
+  </section>
+
+</div>
+
+<script>
+  // ---- Mirrors QUESTIONS dict from Quiz_project.py ----
+  const QUESTIONS = {
+    "General Knowledge": [
+      { question: "What is the capital of France?", options: {A:"Berlin",B:"Madrid",C:"Paris",D:"Rome"}, answer: "C" },
+      { question: "Who painted the Mona Lisa?", options: {A:"Vincent van Gogh",B:"Pablo Picasso",C:"Leonardo da Vinci",D:"Michelangelo"}, answer: "C" },
+      { question: "What is the largest ocean on Earth?", options: {A:"Atlantic Ocean",B:"Indian Ocean",C:"Arctic Ocean",D:"Pacific Ocean"}, answer: "D" },
+      { question: "In which year did the first moon landing occur?", options: {A:"1965",B:"1969",C:"1972",D:"1963"}, answer: "B" },
+      { question: "What is the currency of Japan?", options: {A:"Yuan",B:"Won",C:"Yen",D:"Ringgit"}, answer: "C" },
+      { question: "What is the tallest mountain in the world?", options: {A:"K2",B:"Kangchenjunga",C:"Mount Everest",D:"Lhotse"}, answer: "C" },
+      { question: "Who wrote 'Romeo and Juliet'?", options: {A:"Charles Dickens",B:"William Shakespeare",C:"Jane Austen",D:"Mark Twain"}, answer: "B" },
+      { question: "What is the capital of Australia?", options: {A:"Sydney",B:"Melbourne",C:"Canberra",D:"Brisbane"}, answer: "C" },
+      { question: "In which country is the Great Wall located?", options: {A:"Japan",B:"India",C:"China",D:"Russia"}, answer: "C" },
+      { question: "What is the largest continent?", options: {A:"Africa",B:"Asia",C:"North America",D:"Europe"}, answer: "B" },
+      { question: "Who was the first President of the United States?", options: {A:"Thomas Jefferson",B:"Abraham Lincoln",C:"George Washington",D:"John Adams"}, answer: "C" },
+      { question: "What is the smallest country in the world?", options: {A:"Monaco",B:"Vatican City",C:"San Marino",D:"Liechtenstein"}, answer: "B" }
+    ],
+    "Science": [
+      { question: "What is the closest planet to the Sun?", options: {A:"Earth",B:"Venus",C:"Mars",D:"Mercury"}, answer: "D" },
+      { question: "How many bones are in the adult human body?", options: {A:"206",B:"312",C:"175",D:"250"}, answer: "A" },
+      { question: "What gas do plants absorb from the air?", options: {A:"Oxygen",B:"Nitrogen",C:"Carbon Dioxide",D:"Hydrogen"}, answer: "C" },
+      { question: "What is the chemical symbol for Gold?", options: {A:"Go",B:"Gd",C:"Au",D:"Ag"}, answer: "C" },
+      { question: "What is the powerhouse of the cell?", options: {A:"Nucleus",B:"Mitochondria",C:"Ribosome",D:"Endoplasmic Reticulum"}, answer: "B" },
+      { question: "What is the speed of light in vacuum?", options: {A:"299,792 km/s",B:"150,000 km/s",C:"500,000 km/s",D:"1,000,000 km/s"}, answer: "A" },
+      { question: "What is H2O commonly known as?", options: {A:"Salt",B:"Water",C:"Sugar",D:"Oxygen"}, answer: "B" },
+      { question: "Which planet is known as the Red Planet?", options: {A:"Venus",B:"Mars",C:"Jupiter",D:"Saturn"}, answer: "B" },
+      { question: "What organ pumps blood in the human body?", options: {A:"Liver",B:"Kidney",C:"Heart",D:"Lung"}, answer: "C" },
+      { question: "What is the atomic number of Carbon?", options: {A:"6",B:"8",C:"12",D:"14"}, answer: "A" },
+      { question: "What force keeps planets in orbit?", options: {A:"Magnetism",B:"Gravity",C:"Friction",D:"Electricity"}, answer: "B" },
+      { question: "What is the main gas in Earth's atmosphere?", options: {A:"Oxygen",B:"Carbon Dioxide",C:"Nitrogen",D:"Hydrogen"}, answer: "C" }
+    ],
+    "Anime & Manga": [
+      { question: "Who is the main character in Naruto?", options: {A:"Sasuke Uchiha",B:"Naruto Uzumaki",C:"Kakashi Hatake",D:"Sakura Haruno"}, answer: "B" },
+      { question: "What is the name of the sword used by Ichigo in Bleach?", options: {A:"Zangetsu",B:"Bankai",C:"Excalibur",D:"Muramasa"}, answer: "A" },
+      { question: "In One Piece, what is the name of Luffy's ship?", options: {A:"Going Merry",B:"Thousand Sunny",C:"Moby Dick",D:"Black Pearl"}, answer: "B" },
+      { question: "Who created Dragon Ball?", options: {A:"Eiichiro Oda",B:"Masashi Kishimoto",C:"Akira Toriyama",D:"Tite Kubo"}, answer: "C" },
+      { question: "What anime features a character named Light Yagami?", options: {A:"Death Note",B:"Attack on Titan",C:"Fullmetal Alchemist",D:"Hunter x Hunter"}, answer: "A" },
+      { question: "What is Goku's signature attack?", options: {A:"Rasengan",B:"Kamehameha",C:"Bankai",D:"Susanoo"}, answer: "B" },
+      { question: "In Attack on Titan, what are the giant creatures called?", options: {A:"Hollows",B:"Titans",C:"Akuma",D:"Youma"}, answer: "B" },
+      { question: "Who is the author of One Piece?", options: {A:"Akira Toriyama",B:"Eiichiro Oda",C:"Masashi Kishimoto",D:"Yoshihiro Togashi"}, answer: "B" },
+      { question: "What is the name of the protagonist in Death Note?", options: {A:"L",B:"Light Yagami",C:"Misa Amane",D:"Near"}, answer: "B" },
+      { question: "Which anime has a character named Edward Elric?", options: {A:"Naruto",B:"Fullmetal Alchemist",C:"Bleach",D:"One Piece"}, answer: "B" },
+      { question: "What is the main power system in Hunter x Hunter?", options: {A:"Chakra",B:"Nen",C:"Reiatsu",D:"Haki"}, answer: "B" },
+      { question: "Who is the captain of the Straw Hat Pirates?", options: {A:"Zoro",B:"Sanji",C:"Luffy",D:"Nami"}, answer: "C" }
+    ]
+  };
+
+  const CATEGORIES = Object.keys(QUESTIONS);
+  const CAT_ICONS = { "General Knowledge": "GK", "Science": "SC", "Anime & Manga": "AM" };
+
+  // ---- State (mirrors access_engine / question_loader / quiz_engine / result_engine) ----
+  let state = {
+    category: null,
+    qty: 5,
+    questions: [],
+    index: 0,
+    score: 0,
+    strikes: 3,
+    answered: 0,
+    locked: false
+  };
+
+  function goToScreen(name){
+    document.querySelectorAll('.screen').forEach(s => s.hidden = true);
+    document.getElementById('screen-' + name).hidden = false;
+  }
+
+  // ---- Build category cards ----
+  function buildCategoryGrid(){
+    const grid = document.getElementById('catGrid');
+    grid.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'cat-card';
+      card.innerHTML = `
+        <div class="cat-icon">${CAT_ICONS[cat]}</div>
+        <div>
+          <div class="cat-name">${cat}</div>
+          <div class="cat-count">${QUESTIONS[cat].length} questions available</div>
+        </div>`;
+      card.onclick = () => selectCategory(cat, card);
+      grid.appendChild(card);
+    });
+  }
+
+  function selectCategory(cat, cardEl){
+    state.category = cat;
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    document.getElementById('startBtn').disabled = false;
+    // clamp qty to available questions
+    const max = QUESTIONS[cat].length;
+    if (state.qty > max) state.qty = max;
+    document.getElementById('qtyValue').textContent = state.qty;
+  }
+
+  function adjustQty(delta){
+    const max = state.category ? QUESTIONS[state.category].length : 12;
+    let next = state.qty + delta;
+    if (next < 1) next = 1;
+    if (next > max) next = max;
+    state.qty = next;
+    document.getElementById('qtyValue').textContent = state.qty;
+  }
+
+  // ---- question_loader(category, num_questions) ----
+  function loadQuestions(category, numQuestions){
+    const pool = [...QUESTIONS[category]];
+    shuffle(pool);
+    if (numQuestions && numQuestions < pool.length){
+      return pool.slice(0, numQuestions);
+    }
+    return pool;
+  }
+
+  function shuffle(arr){
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  function startQuiz(){
+    state.questions = loadQuestions(state.category, state.qty);
+    state.index = 0;
+    state.score = 0;
+    state.strikes = 3;
+    state.answered = 0;
+    renderLives();
+    document.getElementById('catLabel').textContent = state.category.toUpperCase();
+    goToScreen('quiz');
+    renderQuestion();
+  }
+
+  function renderLives(){
+    const tracker = document.getElementById('livesTracker');
+    tracker.innerHTML = '';
+    for (let i = 0; i < 3; i++){
+      const chip = document.createElement('div');
+      const lost = i >= state.strikes;
+      chip.className = 'life ' + (lost ? 'lost' : 'filled');
+      tracker.appendChild(chip);
+    }
+  }
+
+  // ---- quiz_engine loop, one question at a time ----
+  function renderQuestion(){
+    state.locked = false;
+    const q = state.questions[state.index];
+    const total = state.questions.length;
+
+    document.getElementById('qCounter').textContent = `QUESTION ${state.index + 1} / ${total}`;
+    document.getElementById('progressFill').style.width = ((state.index) / total * 100) + '%';
+    document.getElementById('questionText').textContent = q.question;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('feedbackText').className = 'feedback';
+    document.getElementById('nextBtn').style.display = 'none';
+
+    const list = document.getElementById('optionsList');
+    list.innerHTML = '';
+    Object.entries(q.options).forEach(([key, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.innerHTML = `<span class="key">${key}</span><span>${label}</span>`;
+      btn.onclick = () => submitAnswer(key, q, btn);
+      list.appendChild(btn);
+    });
+  }
+
+  function submitAnswer(chosen, q, btnEl){
+    if (state.locked) return;
+    state.locked = true;
+    state.answered++;
+
+    const allOptions = document.querySelectorAll('#optionsList .option');
+    allOptions.forEach(b => b.disabled = true);
+
+    const feedback = document.getElementById('feedbackText');
+
+    if (chosen === q.answer){
+      state.score++;
+      btnEl.classList.add('correct');
+      feedback.textContent = 'Correct!';
+      feedback.classList.add('correct');
+    } else {
+      btnEl.classList.add('wrong');
+      allOptions.forEach(b => {
+        if (b.querySelector('.key').textContent === q.answer) b.classList.add('correct');
+      });
+      state.strikes--;
+      feedback.textContent = `Wrong — correct answer was ${q.answer}) ${q.options[q.answer]}`;
+      feedback.classList.add('wrong');
+      renderLives();
+    }
+
+    if (state.strikes <= 0){
+      setTimeout(showResult, 900);
+      return;
+    }
+
+    document.getElementById('nextBtn').style.display = 'block';
+    document.getElementById('nextBtn').textContent =
+      (state.index === state.questions.length - 1) ? 'See results' : 'Next question';
+  }
+
+  function nextQuestion(){
+    state.index++;
+    if (state.index >= state.questions.length || state.strikes <= 0){
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  // ---- result_engine(score, total) ----
+  function showResult(){
+    document.getElementById('progressFill').style.width = '100%';
+    const total = state.answered > 0 ? state.answered : state.questions.length;
+    const score = state.score;
+    const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+    let grade, msg;
+    if (percentage >= 90){ grade = 'A'; msg = 'Outstanding! Perfect knowledge!'; }
+    else if (percentage >= 75){ grade = 'B'; msg = 'Great job! Really solid!'; }
+    else if (percentage >= 55){ grade = 'C'; msg = 'Not bad! A bit more study will help.'; }
+    else if (percentage >= 40){ grade = 'D'; msg = "You passed, but there's room to improve."; }
+    else { grade = 'F'; msg = "Keep practicing, you'll get there!"; }
+
+    document.getElementById('gradeBadge').textContent = grade;
+    document.getElementById('scoreBig').textContent = `${score} / ${total}`;
+    document.getElementById('percentLine').textContent = `${percentage}% correct`;
+    document.getElementById('resultMsg').textContent = msg;
+
+    goToScreen('result');
+  }
+
+  function resetGame(){
+    state = { category: null, qty: 5, questions: [], index: 0, score: 0, strikes: 3, answered: 0, locked: false };
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('qtyValue').textContent = state.qty;
+    renderLives();
+    buildCategoryGrid();
+    goToScreen('welcome');
+  }
+
+  // ---- init ----
+  buildCategoryGrid();
+  renderLives();
+</script>
+
+</body>
+</html>
