@@ -32,14 +32,41 @@ anime = [
     {"name": "modulo yuji", "rank": 3, "title": "the strongest of tommorow", "arc": "2 eye camility"},
 ]
 @app.route("/anime",methods=["GET"])
-def get_anome():
+def get_anime():
     return anime
+
+
 
 @app.route("/books",methods=["POST"])
 def create_book():
     data=request.json
 
+    books.append(data)
+
     return{
         "message":"Book received",
         "book": data
     },201
+
+cool = []
+
+
+# 1. Add "PUT" to the allowed methods array
+@app.route("/cool", methods=["POST", "PUT"])
+def create_cool():
+    data = request.json
+    
+    # 2. Check if the incoming request is a PUT request
+    if request.method == "PUT":
+        # Add your code here to update the resource instead of appending it
+        return {
+            "dialoge": "updated successfully",
+            "random": data
+        }, 200 # 200 OK is standard for updates
+
+    # Your original POST logic remains here
+    cool.append(data)
+    return {
+        "dialoge": "rlly dude",
+        "random": data
+    }, 201
