@@ -50,23 +50,21 @@ def create_book():
 
 cool = []
 
-
-# 1. Add "PUT" to the allowed methods array
-@app.route("/cool", methods=["POST", "PUT"])
-def create_cool():
-    data = request.json
+@app.route("/books/<int:book_id>", methods=["PUT"])
+def update_book(book_id):
+    payload = request.json or {}
+    data = payload.get("OREWA STRIKADA")
     
-    # 2. Check if the incoming request is a PUT request
-    if request.method == "PUT":
-        # Add your code here to update the resource instead of appending it
-        return {
-            "dialoge": "updated successfully",
-            "random": data
-        }, 200 # 200 OK is standard for updates
+    if not data or "title" not in data:
+        return {"message": "Invalid request payload. 'OREWA STRIKADA' with a 'title' is required."}, 400
 
-    # Your original POST logic remains here
-    cool.append(data)
-    return {
-        "dialoge": "rlly dude",
-        "random": data
-    }, 201
+    for book in books:
+        if book["id"] == book_id:
+            book["title"] = data["title"]
+            
+            return {
+                "message": "Yeah this a magical book that puts new words every month or so deal with it mate u bought it",
+                "book": book
+            }, 200
+
+    return {"message": "Oh fuck your books not found mate"}, 404
