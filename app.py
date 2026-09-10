@@ -68,3 +68,26 @@ def update_book(book_id):
             }, 200
 
     return {"message": "Oh fuck your books not found mate"}, 404
+
+@app.route("/books/<int:book_id>", methods=["PATCH"])
+def patch_book(book_id):
+    request_data = request.json
+    
+    # Get the inner dictionary (e.g., the value under "OREWA STRIKADA")
+    # This takes the first value inside the top-level object
+    data = list(request_data.values())[0] if request_data else {}
+
+    for book in books:
+        if book["id"] == book_id:
+            if "title" in data:
+                book["title"] = data["title"]
+            # Optional: Add author handling if needed
+            if "author" in data:
+                book["author"] = data["author"]
+                
+            return {
+                "message": "oh the magical book only put allitle bit of information mate guess you gotta wait",
+                "book": book
+            }
+            
+    return {"message": "yeah we lost the magical book again mate"}, 404
