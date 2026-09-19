@@ -17,6 +17,7 @@ def about():
 def contact():
     return "orewa dev_cocalee i'l become the king of coders"
 
+# Pre-populated list of magical books
 books = [
     {"id": 1, "title": "Python Basics", "author": "Unknown"},
     {"id": 2, "title": "Learning HTML", "author": "Unknown"},
@@ -27,6 +28,7 @@ books = [
 def get_books():
     return books
 
+# Anime tier list database
 anime = [
     {"name": "gojo", "rank": 1, "title": "the strongest of today", "arc": "shibuya incident"},
     {"name": "sukuna", "rank": 2, "title": "the strongest in history", "arc": "shinjuku showdown"},
@@ -42,7 +44,7 @@ def create_book():
     data = request.json
     books.append(data)
     return {
-        "message": "Book received",
+        "message": "Domain Expansion: Infinite Books! Your book has been successfully manifested into existence.",
         "book": data
     }, 201
 
@@ -51,7 +53,7 @@ def update_book(book_id):
     data = request.json or {}
     
     if "title" not in data:
-        return {"message": "Invalid request payload. A 'title' is required."}, 400
+        return {"message": "Baka! You can't overwrite a book without giving me a 'title' first."}, 400
 
     for book in books:
         if book["id"] == book_id:
@@ -64,7 +66,7 @@ def update_book(book_id):
                 "book": book
             }, 200
 
-    return {"message": "Oh fuck your books not found mate"}, 404
+    return {"message": "You thought you found the book? Throughout heaven and earth, that ID alone is non-existent. 404!"}, 404
 
 @app.route("/books/<int:book_id>", methods=["PATCH"])
 def patch_book(book_id):
@@ -82,7 +84,7 @@ def patch_book(book_id):
                 "book": book
             }, 200
             
-    return {"message": "yeah we lost the magical book again mate"}, 404
+    return {"message": "Stand proud, you are strong... but your book data is lost in the Grand Line. 404!"}, 404
 
 @app.route("/books/<int:book_id>", methods=["DELETE"])
 def delete_book(book_id):
@@ -93,7 +95,7 @@ def delete_book(book_id):
                 "message": "Yeah the magical books been erased frome existance mate u didnt do the right thing mate"
             }
             
-    return {"message": "Book not found"}, 404
+    return {"message": "Are you the book because you're 404, or are you 404 because you've been completely erased by Hollow Purple?"}, 404
 
 if __name__ == "__main__":
     app.run(debug=True)
