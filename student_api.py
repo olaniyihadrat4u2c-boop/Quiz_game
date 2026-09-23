@@ -33,6 +33,7 @@ def get_all_students():
 def get_student(student_id):
     for student in students_db:
         if student["id"] == student_id:
+            
             return jsonify({"status": "success", "data": student}), 200
             
     return jsonify({"error": "Student record not found", "id": student_id}), 404
