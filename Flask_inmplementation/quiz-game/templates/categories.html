@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Category — Quiz Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>SELECT CATEGORY</h1>
+        <p class="prompt" style="color: var(--text-dim); font-size: 0.9rem;">choose your battlefield</p>
+
+        <p id="loading" class="loading">Loading categories</p>
+        <div id="error" class="error hidden"></div>
+
+        <div id="category-list" class="category-list"></div>
+
+        <div id="setup" class="setup-form hidden">
+            <h2>QUIZ SETUP</h2>
+            <label for="num-questions">Number of questions</label>
+            <select id="num-questions">
+                <option value="3">3 Questions</option>
+                <option value="5" selected>5 Questions</option>
+                <option value="10">10 Questions</option>
+            </select>
+            <button id="start-btn" class="btn btn-success">▶ Launch Quiz</button>
+        </div>
+
+        <a href="/" class="btn btn-secondary mt-2">← Back to Home</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/categories.js') }}"></script>
+</body>
+</html>

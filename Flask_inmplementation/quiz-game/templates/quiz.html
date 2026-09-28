@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz — Quiz Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 id="category-title">QUIZ</h1>
+
+        <div class="score-bar">
+            <span>SCORE: <span id="score">0</span></span>
+            <span>STRIKES: <span id="strikes" class="strikes-val">0</span></span>
+        </div>
+
+        <p id="question-number"></p>
+
+        <div id="question-container" class="question-box">
+            <p class="loading">Loading question</p>
+        </div>
+
+        <div id="feedback" class="feedback hidden"></div>
+
+        <button id="submit-btn" class="btn hidden w-full">Submit Answer</button>
+        <button id="next-btn" class="btn btn-success hidden w-full">Next Question →</button>
+        <button id="results-btn" class="btn btn-success hidden w-full">View Results →</button>
+
+        <div id="error" class="error hidden"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+</body>
+</html>

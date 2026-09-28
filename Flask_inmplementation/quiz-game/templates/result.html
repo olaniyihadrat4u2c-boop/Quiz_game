@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluation Matrix — Quiz Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="results-panel">
+            <h2 id="res-title">> RUN_COMPLETE</h2>
+            <div id="pct">0%</div>
+            <p id="det">SCORE MATRIX LOADING...</p>
+
+            <div class="stats-row" id="stats" style="display: none;">
+                <div class="stat">
+                    <div class="value" id="stat-score">0</div>
+                    <div class="label">Correct</div>
+                </div>
+                <div class="stat">
+                    <div class="value" id="stat-total">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat">
+                    <div class="value" id="stat-strikes">0</div>
+                    <div class="label">Strikes</div>
+                </div>
+            </div>
+
+            <a href="/categories" class="btn">↺ REBOOT OPERATION</a>
+        </div>
+    </div>
+
+    <script>
+        const id = sessionStorage.getItem('quiz_id');
+
+        if (!id) {
+            document.getElementById('det').innerText = 'NO SESSION FOUND — RETURN TO BASE';
+        } else {
+            fetch(`/api/quiz/${id}/result`)
+                .then(r => r.json())
+                .then(d => {
+                    const pctEl = document.getElementById('pct');
+                    const title = document.getElementById('res-title');
+                    const det = document.getElementById('det');
+
+                    pctEl.innerText = `${d.percentage}%`;
+                    det.innerText = `ACCURACY: ${d.score}/${d.total_questions}  ·  STRIKES: ${d.strikes}`;
+
+                    document.getElementById('stat-score').innerText = d.score;
+                    document.getElementById('stat-total').innerText = d.total_questions;
+                    document.getElementById('stat-strikes').innerText = d.strikes;
+                    document.getElementById('stats').style.display = 'flex';
+
+                    if (d.strikes >= 3) {
+                        title.innerText = "> TERMINATED";
+                        title.classList.add('terminated');
+                        pctEl.classList.add('terminated');
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('det').innerText = 'CONNECTION LOST — UNABLE TO RETRIEVE MATRIX';
+                });
+        }
+    </script>
+</body>
+</html>

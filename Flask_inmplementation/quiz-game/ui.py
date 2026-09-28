@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import uuid
 
@@ -24,15 +24,31 @@ QUESTIONS = {
 
 QUIZZES = {}
 
-@app.route('/', methods=['GET'])
-def welcome():
-    return jsonify({"message": "Welcome to the Quiz-Game API"})
+# ========== PAGES ==========
 
-@app.route('/categories', methods=['GET'])
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/categories')
+def categories_page():
+    return render_template('categories.html')
+
+@app.route('/quiz')
+def quiz_page():
+    return render_template('quiz.html')
+
+@app.route('/result')
+def result_page():
+    return render_template('result.html')
+
+# ========== API ==========
+
+@app.route('/api/categories', methods=['GET'])
 def get_categories():
     return jsonify({"categories": list(QUESTIONS.keys())})
 
-@app.route('/quiz/start', methods=['POST'])
+@app.route('/api/quiz/start', methods=['POST'])
 def start_quiz():
     data = request.get_json() or {}
     category = data.get("category")
@@ -75,7 +91,7 @@ def start_quiz():
         "strikes": 0
     }), 201
 
-@app.route('/quiz/<quiz_id>/question', methods=['GET'])
+@app.route('/api/quiz/<quiz_id>/question', methods=['GET'])
 def get_question(quiz_id):
     quiz = QUIZZES.get(quiz_id)
     if not quiz:
@@ -89,13 +105,13 @@ def get_question(quiz_id):
     return jsonify({
         "question_number": quiz["current_index"] + 1,
         "total_questions": quiz["total_questions"],
-        "question": q["question"],
+        "question": q["quest=+ion"],
         "options": q["options"],
         "score": quiz["score"],
         "strikes": quiz["strikes"]
     })
 
-@app.route('/quiz/<quiz_id>/answer', methods=['POST'])
+@app.route('/api/quiz/<quiz_id>/answer', methods=['POST'])
 def submit_answer(quiz_id):
     quiz = QUIZZES.get(quiz_id)
     if not quiz:
@@ -128,7 +144,7 @@ def submit_answer(quiz_id):
         "completed": quiz["completed"]
     })
 
-@app.route('/quiz/<quiz_id>/result', methods=['GET'])
+@app.route('/api/quiz/<quiz_id>/result', methods=['GET'])
 def get_result(quiz_id):
     quiz = QUIZZES.get(quiz_id)
     if not quiz:
